@@ -4,7 +4,7 @@
     <div class="row2">
       <div class="column2">
 
-        <camt>Videocámara izquierda AWS Deepracer</camt>
+        <h6>Videocámara izquierda AWS Deepracer</h6>
         <div class="box camaraizq">
 
         </div>
@@ -31,19 +31,21 @@
         <v-btn class="botonIni" color="#167ed8" style="color:#FFFF" @click="Iniciar">Iniciar</v-btn>
       </div>
       <div class="column2">
-        <camt>Videocámara derecha AWS Deepracer</camt>
+        <h6>Videocámara derecha AWS Deepracer</h6>
 
         <div class="box camarader">
           <span>mensaje de java: {{ resBackCamera }}</span>
         </div>
 
 
-        <camt>Datos sensor LÌDAR</camt>
+        <h6>Datos sensor LÌDAR</h6>
 
         <div class="box datoslidar">
           <!--<span>mensaje de java: {{ resBack }}</span>
-            <canvas ref="lidarCanvas" width="400" height="400"></canvas>-->
-            <canvas ref="scatterChart"></canvas>
+            <canvas ref="lidarCanvas" width="400" height="400"></canvas>
+          <canvas ref="scatterChart" width="400" height="300"></canvas>-->
+          <Scatter ref="scatterChart" :data="chartData" :options="chartOptions"></Scatter>
+
         </div>
       </div>
     </div>
@@ -53,25 +55,102 @@
 <script>
 /* eslint-disable */
 import SockJS from 'sockjs-client';
-import Stomp from 'stompjs'
-//import Chart from 'chart.js';
+import Stomp from 'stompjs';
+//import { Chart } from 'chart.js';
+import { Scatter } from 'vue-chartjs';
+import Chart from 'chart.js/auto';
 //import axios from 'axios';
-
 
 //axios
 export default {
+
+  components: {
+    Scatter
+    
+  },
+
+
   data() {
+    const resBackLidar = { rangeX: [1, 2, 3, 4], rangeY: [2, 3, 4, 6], intensities: [0, 0, 0, 0] }
+    console.log("DATOSSSSSSSSS", resBackLidar.rangeY);
+  
+    
+
     return {
-      resBack: "",
+     
       resBackCamera: "hola",
-      stompClient: null
+      resBackLidar:{ rangeX: [1, 2, 3, 4], rangeY: [2, 3, 4, 6], intensities: [0, 0, 0, 0] },
+      stompClient: null,
+      chartData: {
+        datasets: [
+         
+          {
+            label: 'Datos del Sensor Lidar',
+            data: [],
+            backgroundColor:  [0.2, 0.4, 0.6, 0.8, 1].map(intensity => `rgba(0, 0, 0, ${intensity})`),
+          }
+        ]
+      },
+
+      chartOptions: {
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom'
+          },
+          y: {
+            type: 'linear',
+            position: 'left'
+          }
+        }
+      }
     };
   },
 
 
+  mounted() {
+    console.log('Componente montado');
+      this.$nextTick(() => {
+      this.updateChartData();
+    });
+  },
+
   methods: {
 
+    transformData(xData, yData) {
+      console.log("HOLA", xData.map((x, index) => ({
+        x: x,
+        y: yData[index]
+      })));
+
+      return xData.map((x, index) => ({
+        x: x,
+        y: yData[index]
+      }));
+    },
+
+    updateChartData() {
+
+      console.log("ENTRAAAAAAAAAA")
+
+      //this.chartData.datasets[0].data = this.transformData(this.resBackLidar.rangeX, this.resBackLidar.rangeY);
+      //this.chartData.datasets[0].backgroundColor = this.resBackLidar.intensities.map(intensity => `rgba(0, 0, 0, ${intensity})`);
+   
+      //console.log("LOS DATOS NUUEEVOS", this.transformData(this.resBackLidar.rangeX, this.resBackLidar.rangeY))
+      this.chartData = {
+        datasets: [{
+          label:'Datos del sensor Lidar',
+          data: this.transformData(this.resBackLidar.rangeX, this.resBackLidar.rangeY)
+        }]
+      };
+      console.info(this.chartData)
+      return (this.chartData)
+  },
+
     connect() {
+      //this.resBackLidar = { rangeX: [4, 3, 2, 1], rangeY: [2, 3, 4, 6], intensities: [0, 0, 0, 0] }
+      //this.updateChartData()
+
       let socket = new SockJS('http://localhost:5430/ws');
       this.stompClient = Stomp.over(socket);
       this.stompClient.connect({}, frame => {
@@ -81,8 +160,22 @@ export default {
           //alert(greeting);
         });
         //this.stompClient.send("/app/receive", {}, "Hola aleja desde frotn");
-        this.stompClient.subscribe('/topic/messages2', greeting2 => {
-          this.resBackCamera = greeting2.body;
+        this.stompClient.subscribe('/topic/messages2', jsonLidar => {
+          this.resBackLidar = JSON.parse(jsonLidar.body); // Parsea el cuerpo del mensaje a un objeto JSON
+          this.resBackLidar.rangeX
+          this.resBackLidar.rangeY
+          this.updateChartData()
+      
+          //this.resBackLidar = { rangeX: [4, 3, 2, 1], rangeY: [2, 3, 4, 6], intensities: [0, 0, 0, 0] }
+          //this.intensities=this.intensities
+          console.log(this.resBackLidar.rangeX)
+
+          //console.log(this.resBackLidar.rangesX)
+          console.log(this.resBackLidar.rangeY)
+          //this.chartData.datasets[0].data = this.transformData(this.resBackLidar.rangeX, this.resBackLidar.rangeY);
+          //this.chartData.datasets[0].backgroundColor = this.resBackLidar.intensities.map(intensity => `rgba(0, 0, 0, ${intensity})`);
+
+          //this.resBackLidar = jsonLidar.body;
           //alert(greeting);
         });
       });
@@ -91,52 +184,62 @@ export default {
       this.stompClient.send("/app/receive", {}, "Hola aleja desde frotn");
     },
 
+
     Iniciar() {
       // Coloca aquí el código que se ejecutará cuando se haga clic en el botón
       console.log('Entro en el método iniciar');
       this.connect();
-    }
+
+
+    },
+
+
   }
-
-    /*callback (message) {
-      // called when the client receives a STOMP message from the server
-      if (message.body) {
-        alert("got message with body " + message.body)
-      } else {
-        alert("got empty message");
-      }
-    },
-
-    conectarWebSocket() {
-      const socket = new SockJS('http://localhost:5430/ws');
-      this.stompClient = Stomp.over(socket);
-      this.stompClient.connect({}, function (frame) {
-        console.log('Conectado a WebSocket');
-        this.stompClient.subscribe("/topic/messages", this.callback )// mensaje => {
-     
-        //console.log('Mensaje recibido:', mensaje.body);
-        //});
-      });
-    },
-
-    
-
-    desconectarWebSocket() {
-      if (this.stompClient) {
-        this.stompClient.disconnect();
-        console.log('WebSocket desconectado');
-      }
-    },
-
-
-    Iniciar() {
-      // Coloca aquí el código que se ejecutará cuando se haga clic en el botón
-      console.log('Entro en el método iniciar');
-      this.conectarWebSocket();
-
-    }
-  }*/
 }
+
+
+
+
+  /*callback (message) {
+    // called when the client receives a STOMP message from the server
+    if (message.body) {
+      alert("got message with body " + message.body)
+    } else {
+      alert("got empty message");
+    }
+  },
+
+  conectarWebSocket() {
+    const socket = new SockJS('http://localhost:5430/ws');
+    this.stompClient = Stomp.over(socket);
+    this.stompClient.connect({}, function (frame) {
+      console.log('Conectado a WebSocket');
+      this.stompClient.subscribe("/topic/messages", this.callback )// mensaje => {
+   
+      //console.log('Mensaje recibido:', mensaje.body);
+      //});
+    });
+  },
+
+  
+
+  desconectarWebSocket() {
+    if (this.stompClient) {
+      this.stompClient.disconnect();
+      console.log('WebSocket desconectado');
+    }
+  },
+
+
+  Iniciar() {
+    // Coloca aquí el código que se ejecutará cuando se haga clic en el botón
+    console.log('Entro en el método iniciar');
+    this.conectarWebSocket();
+
+  }
+}*/
+
+
 
 </script>
     
@@ -157,7 +260,7 @@ export default {
 
 }
 
-camt {
+h6 {
   margin-left: 80px;
   margin-bottom: 0%
 }
@@ -199,8 +302,9 @@ h2 {
 
 .datoslidar {
   width: 400px;
+  height: 400px;
   margin: 20px 45px;
-  padding: 100px 500px 250px 70px;
+  padding: 20px;
 }
 
 .botonIni {

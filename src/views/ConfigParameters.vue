@@ -38,15 +38,15 @@
         <h3>Eleccion de Cámaras</h3>
         <div class="box cameras">
           <label class="cyberpunk-checkbox-label">
-            <input class="cyberpunk-checkbox" type="checkbox" id="camaraIzq">
+            <input class="cyberpunk-checkbox" type="checkbox" name="camara" id="camaraIzq">
             Usar cámara izquierda</label>
 
           <label class="cyberpunk-checkbox-label">
-            <input class="cyberpunk-checkbox" type="checkbox" id ="camaraDer">
+            <input class="cyberpunk-checkbox" type="checkbox" name="camara" id ="camaraDer">
             Usar cámara derecha</label>
 
           <label class="cyberpunk-checkbox-label">
-            <input class="cyberpunk-checkbox" type="checkbox" id="camaraEstereo ">
+            <input class="cyberpunk-checkbox" type="checkbox" name="camara" id="camaraEstereo">
             Usar cámara estéreo (dos) </label>
         </div>
 
@@ -102,8 +102,10 @@ import Vue from 'vue';
 
 //campoInput.disable = false;
 
+
+
 export default {
-  
+
  
   name: 'ConfParameters',
   data() {
@@ -119,6 +121,7 @@ export default {
       sliderValue: 5,
     };
   }
+  
 
 }
 
