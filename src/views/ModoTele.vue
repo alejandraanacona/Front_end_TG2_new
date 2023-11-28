@@ -88,6 +88,7 @@ export default {
             label: 'Datos del Sensor Lidar',
             data: [],
             backgroundColor:  [0.2, 0.4, 0.6, 0.8, 1].map(intensity => `rgba(0, 0, 0, ${intensity})`),
+            pointRadius: 0.1 // Tamaño reducido de los puntos
           }
         ]
       },
@@ -96,13 +97,23 @@ export default {
         scales: {
           x: {
             type: 'linear',
-            position: 'bottom'
+            position: 'bottom',
+            min: -0.5, // Establece el valor mínimo del eje X
+            max: 0.5// Establece el valor máximo del eje X
           },
           y: {
             type: 'linear',
-            position: 'left'
+            position: 'left',
+            min: -0.8, // Establece el valor mínimo del eje Y
+            max: 0.8 // Establece el valor máximo del eje Y
           }
+        },
+        animation: false, // Desactiva las animaciones para evitar el movimiento de los puntos
+        elements: {
+        point: {
+            radius: 1 // Tamaño global de los puntos
         }
+    }
       }
     };
   },
