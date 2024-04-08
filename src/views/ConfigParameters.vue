@@ -87,7 +87,7 @@
           
 
         </div>
-          <button type="submit" value="Guardar" class="boton" style="color:#FFFF" > Aplicar </button>
+          <button @click="guardarConfiguracion" type="submit" value="Guardar" class="boton" style="color:#FFFF" > Aplicar </button>
           
         </div>
     </div>
@@ -98,7 +98,7 @@
 <script>
 
 import Vue from 'vue';
-
+import axios from 'axios'
 
 //campoInput.disable = false;
 
@@ -120,9 +120,37 @@ export default {
       ],
       sliderValue: 5,
     };
+  },
+
+  methods :{
+    guardarConfiguracion() {
+      // Obtener los datos necesarios del componente
+      const data = {
+        nombrepkgEnabled: this.nombrepkgEnabled,
+        selectedItem: this.selectedItem,
+        // Agrega más datos según sea necesario
+        rangomin: this.rangomin,
+        rangomax: this.rangomax,
+        sliderValue: this.sliderValue,
+        velmaxlineal: this.velmaxlineal,
+        velmaxangular: this.velmaxangular,
+        // Agrega más datos según sea necesario
+      };
+      console.log("la data a guardar: " , data);
+      // Realizar una solicitud POST al backend
+      /*axios.post('URL_DEL_BACKEND', data)
+        .then(response => {
+          console.log('Configuración guardada con éxito:', response.data);
+          // Puedes realizar más acciones después de la respuesta exitosa
+        })
+        .catch(error => {
+          console.error('Error al guardar la configuración:', error);
+          // Puedes manejar el error según tus necesidades
+        });*/
   }
   
 
+}
 }
 
 

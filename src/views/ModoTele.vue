@@ -6,7 +6,7 @@
 
         <h6>Videocámara izquierda AWS Deepracer</h6>
         <div class="box camaraizq">
-
+          <img src="http://localhost:8080/stream?topic=/camera_pkg/display_mjpeg&width=640&height=400">
         </div>
         <h4>Control teleoperación</h4>
         <div class="box joy">
@@ -21,7 +21,9 @@
         <h6>Videocámara derecha AWS Deepracer</h6>
 
         <div class="box camarader">
-         <span>mensaje de java: {{ resBackCamera }}</span>
+          <img src="http://localhost:8080/stream?topic=/camera_pkg/display_mjpeg&width=640&height=400">
+          <!--<canvas id="myChart" width="400" height="200"></canvas>
+         <span>mensaje de java: {{ resBackCamera }}</span> -->
         </div>
 
 
@@ -65,7 +67,7 @@ export default {
 
     return {
 
-      resBackCamera: "hola",
+      //resBackCamera: "hola", //variable para la camara
       resBackLidar: { rangeX: [0.64, 0.88, 0.033, 4], rangeY: [0.02, 0.01, 0.014, 0.025], intensities: [0, 0, 0, 0] },
       stompClient: null,
       chartData: {
@@ -85,14 +87,14 @@ export default {
           x: {
             type: 'linear',
             position: 'bottom',
-            min: -0.5, // Establece el valor mínimo del eje X
-            max: 0.5// Establece el valor máximo del eje X
+            min: -1, // Establece el valor mínimo del eje X
+            max: 1// Establece el valor máximo del eje X
           },
           y: {
             type: 'linear',
             position: 'left',
-            min: -0.8, // Establece el valor mínimo del eje Y
-            max: 0.8 // Establece el valor máximo del eje Y
+            min: -5, // Establece el valor mínimo del eje Y
+            max: 5 // Establece el valor máximo del eje Y
           }
         },
         animation: false, // Desactiva las animaciones para evitar el movimiento de los puntos
@@ -130,7 +132,9 @@ export default {
     color: '#167ed8',
     mode: 'static',
     size: 200,
-    dynamicPage: true
+    dynamicPage: true,
+    threshold: 1.0,               // before triggering a directional event
+    //fadeTime: Integer,  
     };
 
     const joystick = nipplejs.create(options);
@@ -146,12 +150,14 @@ export default {
       //console.log(data);
     });
 
-    joystick.on('end', () => {
+    joystick.on('end', (evt, data) => {
       // Handle joystick stop
-      var dataStop={angle:0.0, throttle:0.0}
-      var jsonMessage = JSON.stringify(dataStop);
+      //var dataStop={angle2:0.0, throttle:0.0}
+      data.vector = {'x':0.0,'y':0.0};
+      data.angle = {'radian':0.0, 'degree':270};
+      var jsonMessage = JSON.stringify(data); 
       this.sendMessage(jsonMessage)
-      console.log(dataStop);
+      console.log(data);
     });
 
 
@@ -169,14 +175,19 @@ export default {
       }));
     },
 
+    updateChartImageData(){
+      console.log("Entra a la funcion de actualizacion de datos de la camara")
+      
+    },
+
     updateChartData() {
 
-      console.log("ENTRAAAAAAAAAA")
+      console.log("Entra a la funcion de actualizacion de datos de lidar")
 
       //this.chartData.datasets[0].data = this.transformData(this.resBackLidar.rangeX, this.resBackLidar.rangeY);
       //this.chartData.datasets[0].backgroundColor = this.resBackLidar.intensities.map(intensity => `rgba(0, 0, 0, ${intensity})`);
-
       //console.log("LOS DATOS NUUEEVOS", this.transformData(this.resBackLidar.rangeX, this.resBackLidar.rangeY))
+
       this.chartData = {
         datasets: [{
           label: 'Datos del sensor Lidar',
@@ -187,12 +198,14 @@ export default {
       return (this.chartData)
     },
 
+
   connectToSocket() {
     let socket = new SockJS('http://localhost:5430/ws');
     this.stompClient = Stomp.over(socket);
     this.stompClient.connect({}, frame => {
       console.log('Conectado: ' + frame);
       this.subscribeToMessages();
+      this.subscribeToCamera();
       this.subscribeToLidarMessages();
     });
   },
@@ -232,19 +245,25 @@ export default {
       });
     },*/
 
-    subscribeToMessages() {
+  subscribeToMessages() {
     this.stompClient.subscribe('/topic/messages', mensaje => {
       this.resBackCamera = mensaje.body;
     });
   },
 
+  subscribeToCamera() {
+    this.stompClient.subscribe('/topic/messages2', jsonCamera => {
+      this.resBackCamera = JSON.parse(jsonCamera.body);
+      //this.updateChartData();
+    });
+  },
+
   subscribeToLidarMessages() {
-    this.stompClient.subscribe('/topic/messages2', jsonLidar => {
+    this.stompClient.subscribe('/topic/messages3', jsonLidar => {
       this.resBackLidar = JSON.parse(jsonLidar.body);
       this.updateChartData();
     });
   },
-
 
 
     Iniciar() {
@@ -351,15 +370,15 @@ h2 {
 }
 
 .camaraizq {
-  width: 400px;
+  width: 700px;
   margin: 40px 130px;
-  padding: 100px 500px 250px 70px;
+  padding: 50px 19px 50px 19px;
 }
 
 .camarader {
-  width: 400px;
+  width: 700px;
   margin: 40px 45px;
-  padding: 100px 500px 250px 70px;
+  padding: 50px 19px 50px 19px;
 }
 
 .joy {
@@ -369,10 +388,10 @@ h2 {
 }
 
 .datoslidar {
-  width: 400px;
-  height: 400px;
-  margin: 20px 45px;
-  padding: 20px;
+  width: 580px;
+  height: 350px;
+  margin: 40px 45px;
+  padding: 20px 20px 20px 20px;
 }
 
 .botonIni {
