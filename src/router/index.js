@@ -18,8 +18,8 @@ const router = new VueRouter({
   
   {
     path: '/',
-    name: 'LoginDeep',
-    component: () => import('../views/LoginDeep.vue')
+    name: 'ModoAdministrador',
+    component: () => import('../views/ModoAdministrador.vue')
   },
   {
     path: '/forgot-password',
