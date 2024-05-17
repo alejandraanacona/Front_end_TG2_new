@@ -60,6 +60,7 @@
 /* eslint-disable */
 import Vue from 'vue';
 import axios from 'axios';
+import { EventBus } from './eventBus';
 
 axios
 export default {
@@ -94,8 +95,14 @@ export default {
 
                             }
                             else if (data.message == "Login Success") {
+                                console.log("usuarios enviados:" +JSON.stringify(data.usuarios));
+                                this.$router.push({ name: 'InstruccionesUso' }),
+                                localStorage.setItem('usuarios', JSON.stringify(data.usuarios));
 
-                                this.$router.push({ name: 'ConfigParameters' })
+                            }
+                            else if (data.message == "Login Success Admin") {
+
+                                this.$router.push({ name: 'ModoAdministrador' })
                             }
                             else {
                                 alert("Incorrect Code and Password not match");
@@ -107,6 +114,7 @@ export default {
                     }
                 )
         }
+        
     }
 }
 

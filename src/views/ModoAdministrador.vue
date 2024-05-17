@@ -30,6 +30,15 @@
                       <label class="col-form-label col-form-label-lg">Código <span class="text-danger">*</span></label>
                       <input type="text" class="form-control form-control-lg" v-model="user.codigoUv">
                   </div>
+                  <div class="form-group">
+                      <label class="col-form-label col-form-label-lg">Rol <span class="text-danger">*</span></label>
+                      <select class="form-control form-control-lg" v-model="user.rol">
+                          <option value="" disabled selected>Selecciona un rol</option>
+                          <option value="admin">Administrador</option>
+                          <option value="user">Usuario</option>
+                          <!-- Agrega más opciones según sea necesario -->
+                      </select>
+                  </div>
                     <br>
                     <div class="form-group text-center">
                     <button value="saveUsers" class="btn btn-vue btn-lg col-4">Registrar</button>
@@ -45,6 +54,7 @@
                         <th>Apellido</th>
                         <th>Correo Electrónico</th>
                         <th>Código</th>
+                        <th>Rol</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -53,6 +63,7 @@
                         <td>{{ user.apellido }}</td>
                         <td>{{ user.email }}</td>
                         <td>{{ user.codigoUv }}</td>
+                        <td>{{ user.rol }}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -77,7 +88,7 @@
             apellido:'',
             email:'',
             codigoUv:'',
-            programaAcademico:'Ingeniería Electrónica'
+            rol:''
         }
       };
     },
@@ -103,7 +114,7 @@
             apellido: this.user.apellido,
             email: this.user.email,
             codigoUv: this.user.codigoUv,
-            programaAcademico:this.user.programaAcademico
+            rol:this.user.rol
         })
         console.log('Usuarios a guardar', this.user)
         .then(response => {

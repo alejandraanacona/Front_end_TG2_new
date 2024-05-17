@@ -22,20 +22,20 @@
         <SidebarLink to ="/horario"> <v-icon>mdi-calendar</v-icon> <span v-if ="collapsed"> </span>
             <span v-else>&nbsp;&nbsp;&nbsp;Agendar horario </span> </SidebarLink>
         <br>
-        <SidebarLink to ="/config" > <v-icon>mdi-cogs</v-icon> <span v-if ="collapsed"> </span>
+        <SidebarLink v-if="isHorarioActivo()" to ="/config" > <v-icon>mdi-cogs</v-icon> <span v-if ="collapsed"> </span>
             <span v-else>&nbsp;Configuración de Parámetros</span> </SidebarLink>
         <br>
-        <SidebarLink to ="/teleoperado"> <v-icon color="white">mdi-laptop</v-icon><span v-if ="collapsed"> </span>
+        <SidebarLink v-if="isHorarioActivo()" to ="/teleoperado"> <v-icon color="white">mdi-laptop</v-icon><span v-if ="collapsed"> </span>
             <span v-else> &nbsp;&nbsp;Modo Teleoperado </span>  </SidebarLink>
         <br>
-        <SidebarLink to ="/autonomo" > <v-icon color="white">mdi-road</v-icon><span v-if ="collapsed"> </span>
+        <SidebarLink v-if="isHorarioActivo()" to ="/autonomo" > <v-icon color="white">mdi-road</v-icon><span v-if ="collapsed"> </span>
             <span v-else>&nbsp;&nbsp;Modo Autónomo </span> </SidebarLink>
         <br>
             <ul class="sub-menu">    
-                <SidebarLink to ="/programado" > <v-icon>mdi-file-code</v-icon><span v-if ="collapsed"> </span>
+                <SidebarLink v-if="isHorarioActivo()" to ="/programado" > <v-icon>mdi-file-code</v-icon><span v-if ="collapsed"> </span>
             <span v-else>&nbsp;&nbsp; Modo programado </span></SidebarLink>
                 <br>
-                <SidebarLink to ="/ejecucion" > <v-icon>mdi-play</v-icon><span v-if ="collapsed"> </span>
+                <SidebarLink v-if="isHorarioActivo()" to ="/ejecucion" > <v-icon>mdi-play</v-icon><span v-if ="collapsed"> </span>
             <span v-else> &nbsp;&nbsp; Modo ejecución </span> </SidebarLink>
             </ul>
         <br>
@@ -57,6 +57,7 @@
 <script>
 import {collapsed,toggleSidebar, sidebarWidth } from './state'
 import SidebarLink from './SidebarLink.vue';
+import axios from 'axios';
 
 
 
@@ -65,8 +66,49 @@ export default {
     components:{ SidebarLink },
     setup(){    
         return {collapsed , toggleSidebar, sidebarWidth,SidebarLink}
+    },
+    data() {
+        return {
+            usuarios: JSON.parse(localStorage.getItem('usuarios')),
+            horario: null
+        };
+    },
+
+    mounted() {
+        this.consultarHorario(); // Consulta el horario al inicio
+        this.isHorarioActivo();
+        setInterval(this.consultarHorario, 60000); // Consulta cada 60 segundos (60000 milisegundos)
+    },
+
+    methods: {
+        consultarHorario() {
+            console.log("usuarios: "+ this.usuarios.userId)
+            axios.get(`http://localhost:5430/horario/${this.usuarios.userId}`)
+                .then(({ data }) => {
+                    this.horario = data.horario;
+                    console.log("Horario consultado: ", this.horario);
+                })
+                .catch(() => {
+                    alert("Error al consultar el horario, por favor intente nuevamente");
+                });
+        },
+
+        isHorarioActivo() {
+            // Suponiendo que 'horario' es un objeto con propiedades 'inicio' y 'fin' representando la hora de inicio y fin del horario
+            if (this.horario) {
+                const ahora = new Date();
+                const fechaInicio = new Date(this.horario.fecha+" "+ this.horario.horaInicio);
+                const fechaFin = new Date(this.horario.fecha + " "+this.horario.horaFin);
+                console.log("fecha inicio:" +fechaInicio);
+                console.log("fecha fin:" +fechaFin);
+                console.log("fechaahora: "+ahora);
+                return ahora >= fechaInicio && ahora <= fechaFin;
+            }
+            return false;
+        }
     }
 }
+
 </script>
 
 <style>

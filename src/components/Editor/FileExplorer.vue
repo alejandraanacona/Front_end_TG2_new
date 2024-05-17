@@ -1,5 +1,6 @@
 <template>
     <div class="file-explorer">
+        <h2>Directorio de archivos</h2>
       <div class="directory-tree">
         <ul>
           <li v-for="item in directoryItems" :key="item.name">

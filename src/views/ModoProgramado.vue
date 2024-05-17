@@ -38,10 +38,9 @@ export default {
 <style>
 
 
-.container {
+/*.container {
   display: flex;
-  padding-top: 100000px;
-}
+}*/
 
 .file-explorer {
   width: 250px; /* Ancho del FileExplorer */

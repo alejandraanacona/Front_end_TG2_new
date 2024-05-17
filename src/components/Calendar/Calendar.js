@@ -1,4 +1,5 @@
 import { db } from '../../main'
+import axios from 'axios'
 import { getDocs, collection, query, addDoc, onSnapshot } from 'firebase/firestore'
 
 export default {
@@ -167,52 +168,67 @@ export default {
         this.menuDate = false
       },
       async createEventForm () {
-
+        console.log("Entra a la función crear evento");
         await this.$refs.form.validate()
 
         if (this.valid) {
 
-          const collectionRef = collection( db, 'events'); 
-
           let dateFromString = this.date.split("-");
+          console.log("Entra a la función crear evento", dateFromString);
 
           let timeStartFromString = this.timeStart.split(":");
+          console.log("Entra a la función crear evento", timeStartFromString);
 
           let timeEndFromString = this.timeEnd.split(":");
+          console.log("Entra a la función crear evento", timeEndFromString);
+
 
           const dateStart = new Date( dateFromString[0], dateFromString[1] - 1, dateFromString[2], timeStartFromString[0], timeStartFromString[1], "00")
           const dateEnd = new Date( dateFromString[0], dateFromString[1] - 1, dateFromString[2], timeEndFromString[0], timeEndFromString[1], "00" )
+          //const dateStart= new Date
+          const hourStart = this.timeStart + ":" +"00"
+          const hourEnd = this.timeEnd+ ":" +"00"
 
-          console.log(Date.parse(dateStart));
-          console.log(Date.parse(dateEnd));
+          //console.log("la fecha de inicio: " + hourStart);
+          //console.log("la fecha de inicio: " + hourEnd);
 
           this.createEvent = {
-            name: 'reserva de kevin',
+            userId: 1,
+            fecha:this.date,
+            horaInicio: hourStart,
+            horaFin: hourEnd,
             color: this.rndElement(this.colors),
-            start: Date.parse(dateStart),
-            end: Date.parse(dateEnd),
             timed: true,
-        }
-
-        await addDoc(collectionRef, this.createEvent)
-        }
-      },
-      async fetchEvents () {
+        };
+        console.log(this.createEvent);
 
         try {
-            
-            onSnapshot(collection( db, 'events'), (snap) => {
-                this.events = [];
-
-                snap.forEach((doc) => {
-                    this.events.push(doc.data());
-                })
-            });
-
+          const response = await axios.post('http://localhost:5430/horario/reservar', this.createEvent);
+          console.log(this.createEvent);
+          console.log(response.data);
+          // Actualizar la lista de eventos después de crear uno nuevo
+          this.fetchEvents();
         } catch (error) {
-            console.log(error);
+          console.error('Error reservando el horario:', error.response.data);
+          }
         }
       },
+
+      async fetchEvents() {
+        try {
+          const response = await axios.get('/api/sesiones');
+          this.events = response.data.map(event => {
+            return {
+              ...event,
+              start: Date.parse(event.horaInicio),
+              end: Date.parse(event.horaFin)
+            };
+          });
+        } catch (error) {
+          console.error('Error fetching events:', error);
+        }
+      },
+
       rnd (a, b) {
         return Math.floor((b - a + 1) * Math.random()) + a
       },

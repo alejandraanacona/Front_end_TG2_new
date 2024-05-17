@@ -15,9 +15,13 @@ const router = new VueRouter({
   mode: 'history', // Usa createWebHistory en versiones más recientes
   base: process.env.BASE_URL,
   routes: [
-  
   {
     path: '/',
+    name: 'LoginDeep',
+    component: () => import('../views/LoginDeep.vue')
+  },
+  {
+    path: '/registrar',
     name: 'ModoAdministrador',
     component: () => import('../views/ModoAdministrador.vue')
   },
@@ -74,8 +78,6 @@ const router = new VueRouter({
         name: 'ModoEjecucion',
         component: ModoEjecucion
         },
-
-
        
       ],
   },
