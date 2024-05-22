@@ -22,17 +22,17 @@
         <SidebarLink to ="/horario"> <v-icon>mdi-calendar</v-icon> <span v-if ="collapsed"> </span>
             <span v-else>&nbsp;&nbsp;&nbsp;Agendar horario </span> </SidebarLink>
         <br>
-        <SidebarLink v-if="isHorarioActivo()" to ="/config" > <v-icon>mdi-cogs</v-icon> <span v-if ="collapsed"> </span>
+        <SidebarLink  to ="/config" > <v-icon>mdi-cogs</v-icon> <span v-if ="collapsed"> </span>
             <span v-else>&nbsp;Configuración de Parámetros</span> </SidebarLink>
         <br>
-        <SidebarLink v-if="isHorarioActivo()" to ="/teleoperado"> <v-icon color="white">mdi-laptop</v-icon><span v-if ="collapsed"> </span>
+        <SidebarLink  to ="/teleoperado"> <v-icon color="white">mdi-laptop</v-icon><span v-if ="collapsed"> </span>
             <span v-else> &nbsp;&nbsp;Modo Teleoperado </span>  </SidebarLink>
         <br>
-        <SidebarLink v-if="isHorarioActivo()" to ="/autonomo" > <v-icon color="white">mdi-road</v-icon><span v-if ="collapsed"> </span>
+        <SidebarLink to ="/autonomo" > <v-icon color="white">mdi-road</v-icon><span v-if ="collapsed"> </span>
             <span v-else>&nbsp;&nbsp;Modo Autónomo </span> </SidebarLink>
         <br>
             <ul class="sub-menu">    
-                <SidebarLink v-if="isHorarioActivo()" to ="/programado" > <v-icon>mdi-file-code</v-icon><span v-if ="collapsed"> </span>
+                <SidebarLink  to ="/programado" > <v-icon>mdi-file-code</v-icon><span v-if ="collapsed"> </span>
             <span v-else>&nbsp;&nbsp; Modo programado </span></SidebarLink>
                 <br>
                 <SidebarLink v-if="isHorarioActivo()" to ="/ejecucion" > <v-icon>mdi-play</v-icon><span v-if ="collapsed"> </span>
@@ -75,9 +75,9 @@ export default {
     },
 
     mounted() {
-        this.consultarHorario(); // Consulta el horario al inicio
+        /*this.consultarHorario(); // Consulta el horario al inicio
         this.isHorarioActivo();
-        setInterval(this.consultarHorario, 60000); // Consulta cada 60 segundos (60000 milisegundos)
+        setInterval(this.consultarHorario, 60000); // Consulta cada 60 segundos (60000 milisegundos)*/
     },
 
     methods: {

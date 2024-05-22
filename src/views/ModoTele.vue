@@ -61,7 +61,7 @@ export default {
 
   data() {
     const resBackLidar = { rangeX: [1, 2, 3, 4], rangeY: [2, 3, 4, 6], intensities: [0, 0, 0, 0] }
-    console.log("DATOSSSSSSSSS", resBackLidar.rangeY);
+    //console.log("DATOSSSSSSSSS", resBackLidar.rangeY);
 
 
 
@@ -194,7 +194,7 @@ export default {
           data: this.transformData(this.resBackLidar.rangeX, this.resBackLidar.rangeY)
         }]
       };
-      console.info(this.chartData)
+      //console.info(this.chartData)
       return (this.chartData)
     },
 

@@ -118,7 +118,7 @@ export default {
         'Teleoperado + Cámaras + Láser',
         // Agrega las opciones que desees
       ],
-      sliderValue: 5,
+      sliderValue: 11,
     };
   },
 

@@ -1,34 +1,64 @@
 <template>
-  <div class="container">
-    <div class="file-explorer">
-      <FileExplorer :directoryItems="directoryItems" @select="handleFileSelect" />
+  <div class="containerPro">
+    <div class="buttons">
+      
+      <div>
+        <h7>Abrir archivos</h7>
+        <button @click="abrirNodo" type="submit" value="Nodo.py" class="boton" style="color:#FFFF">Nodo.py</button>
+        <button @click="abrirSetup" type="submit" value="Setup" class="boton" style="color:#FFFF">Setup</button>
+        <button @click="abrirLaunch" type="submit" value="Launch" class="boton" style="color:#FFFF">Launch</button>
+        <br><br><br><br>
+        <h7>Guardar edición archivos</h7>
+        <button @click="guardarArchivo" type="submit" value="Guardar" class="boton" style="color:#FFFF">Guardar</button>
+        <br><br><br><br>
+        <h7>Crear nuevo nodo</h7>
+        <button @click="crearNodo" type="submit" value="crear" class="boton" style="color:#FFFF">Nuevo Nodo</button>
+
+      </div>
     </div>
     <div class="editor">
-      <AceEditor :value="code" />
+      <AceEditor v-model="code" />
     </div>
 </div>
 </template>
 
 <script>
 import AceEditor from '@/components/Editor/AceEditor.vue';
-import FileExplorer from '@/components/Editor/FileExplorer.vue'; // Supongamos que tienes un componente FileExplorer
-
+import axios from 'axios';
 
 export default {
   components: {
     AceEditor,
-    FileExplorer,
+
   },
   data() {
     return {
-      code: '<html>\n\t<head>\n\t\t<title>Vue.js Ace Editor</title>\n\t</head>\n\t<body>\n\t\t<h1>Hello, Ace Editor in Vue.js!</h1>\n\t</body>\n</html>',
+      code: '# Escribe tu código Python aquí\nprint("Hola, Ace Editor en Vue.js!")',
       directoryItems: [], // Lista de archivos y directorios para mostrar en FileExplorer
+      usuarios: JSON.parse(localStorage.getItem('usuarios')),
     };
   },
 
   methods: {
-    handleFileSelect(file) {
-      // Lógica para manejar la selección de un archivo
+    async abrirNodo() {
+      try {
+        const response = await axios.get(`http://localhost:5430/api/userfolders/${this.usuarios.userId}`)
+        this.code = response.data;
+      } catch (error) {
+        console.error('Error al leer el archivo frontend:', error);
+      }
+
+      // Aquí deberías implementar la lógica para leer el contenido del archivo.
+      // En este ejemplo, usaremos fetch para leer archivos estáticos.
+
+    },
+    guardarArchivo() {
+      // Implementa la lógica para guardar el archivo
+      console.log('Guardar archivo:', this.code);
+    },
+    crearNodo() {
+      // Implementa la lógica para crear un nuevo nodo
+      console.log('Crear nuevo nodo');
     },
   },
 };
@@ -38,17 +68,42 @@ export default {
 <style>
 
 
-/*.container {
+.containerPro {
+  
   display: flex;
-}*/
-
-.file-explorer {
-  width: 250px; /* Ancho del FileExplorer */
-  padding-top: 51px;
+  
 }
 
 .editor {
-  flex: 1; /* Toma el resto del espacio disponible */
-  padding-top: 100px;
+  flex: 1;
+  padding: 50px 5px;
+}
+
+.buttons {
+  display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 100px;
+    width: 100px;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+
+h7{
+  display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+ 
+    justify-content: center;
+    
+   
+}
+.boton{
+    font-size: 0.9rem;
+    margin: 4px 310px;
+    letter-spacing: 0.05rem;
+    padding: 10px 50px;
+    background-color: #4a4a4a;
+    border-radius: 30px;
 }
 </style>
