@@ -1,109 +1,228 @@
 <template>
   <div class="containerPro">
     <div class="buttons">
-      
       <div>
-        <h7>Abrir archivos</h7>
+        <h5>Abrir archivos</h5>
         <button @click="abrirNodo" type="submit" value="Nodo.py" class="boton" style="color:#FFFF">Nodo.py</button>
         <button @click="abrirSetup" type="submit" value="Setup" class="boton" style="color:#FFFF">Setup</button>
         <button @click="abrirLaunch" type="submit" value="Launch" class="boton" style="color:#FFFF">Launch</button>
         <br><br><br><br>
-        <h7>Guardar edición archivos</h7>
+        <h5>Guardar edición archivos</h5>
         <button @click="guardarArchivo" type="submit" value="Guardar" class="boton" style="color:#FFFF">Guardar</button>
         <br><br><br><br>
-        <h7>Crear nuevo nodo</h7>
+        <h5>Crear nuevo nodo</h5>
         <button @click="crearNodo" type="submit" value="crear" class="boton" style="color:#FFFF">Nuevo Nodo</button>
-
+        <br><br><br><br>
+        <h5>Ejecutar y Stop</h5>
+        <button @click="ejecutarCodigo" type="submit" value="Ejecutar" class="botonPlay" style="color:#FFFF">Ejecutar</button>
+        <button @click="detenerCodigo" type="submit" value="Stop" class="botonStop" style="color:#FFFF">Stop</button>
       </div>
     </div>
-    <div class="editor">
-      <AceEditor v-model="code" />
+    <div class="editor-output-container">
+      <div class="editor">
+        <AceEditor v-model="code" />
+      </div>
+      <div class="output">
+        <textarea v-model="registros" readonly></textarea>
+      </div>
     </div>
-</div>
+  </div>
 </template>
 
 <script>
 import AceEditor from '@/components/Editor/AceEditor.vue';
 import axios from 'axios';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 
 export default {
   components: {
     AceEditor,
-
   },
   data() {
     return {
-      code: '# Escribe tu código Python aquí\nprint("Hola, Ace Editor en Vue.js!")',
-      directoryItems: [], // Lista de archivos y directorios para mostrar en FileExplorer
+      code: '',
+      output: '', // Para el cuadro de texto de salida
       usuarios: JSON.parse(localStorage.getItem('usuarios')),
+      filePath:'',
+      archivoNodo:'nodo',
+      archivoSetup:'setup',
+      registros:' ',
+      stompClient: null
     };
   },
-
   methods: {
     async abrirNodo() {
       try {
-        const response = await axios.get(`http://localhost:5430/api/userfolders/${this.usuarios.userId}`)
-        this.code = response.data;
+        const response = await axios.get(`http://localhost:5430/api/userfolders/${this.usuarios.userId}/${this.archivoNodo}`)
+        this.code = response.data.fileContent;
+        this.filePath = response.data.path;
+
+        console.log(this.code);
       } catch (error) {
         console.error('Error al leer el archivo frontend:', error);
       }
+    },
 
-      // Aquí deberías implementar la lógica para leer el contenido del archivo.
-      // En este ejemplo, usaremos fetch para leer archivos estáticos.
+    async abrirSetup(){
+      console.log('Guardar archivo:', this.code);
+      try {
+        const response = await axios.get(`http://localhost:5430/api/userfolders/${this.usuarios.userId}/${this.archivoSetup}`)
+        this.code = response.data.fileContent;
+        this.filePath = response.data.path;
+
+        console.log(this.code);
+      } catch (error) {
+        console.error('Error al leer el archivo frontend:', error);
+      }
+    },
+
+    abrirLaunch(){
+      console.log('Guardar archivo:', this.code);
 
     },
     guardarArchivo() {
-      // Implementa la lógica para guardar el archivo
-      console.log('Guardar archivo:', this.code);
+      try{
+      axios.post("http://localhost:5430/api/userfolders/save", {fileContent:this.code, path:this.filePath})
+      }catch(error){
+      console.log('Error al guardar archivo:', error);
+      }
     },
     crearNodo() {
-      // Implementa la lógica para crear un nuevo nodo
-      console.log('Crear nuevo nodo');
+      //console.log('Crear nuevo nodo');
     },
+
+    connectToSocketProgram() {
+    let socket = new SockJS('http://localhost:5430/ws');
+    this.stompClient = Stomp.over(socket);
+    this.stompClient.connect({}, frame => {
+      console.log('Conectado: ' + frame);
+      this.subscribeToMessagesConsole();
+      });
+    },
+
+    subscribeToMessagesConsole() {
+    this.stompClient.subscribe('/topic/output', mensaje => {
+      this.registros = mensaje.body;
+      });
+    },
+
+    ejecutarCodigo() {
+
+      // Lógica para ejecutar el código
+      console.log('Ejecutar código:',this.usuarios );
+
+
+      axios.post("http://localhost:5430/api/userfolders/buildAndRun", this.usuarios)
+        .then(response => {
+          this.output = response.data.output;
+        })
+        .catch(error => {
+          console.error('Error al ejecutar el código:', error);
+        });
+
+      this.connectToSocketProgram();
+      
+      
+    },
+    detenerCodigo() {
+      // Lógica para detener el código
+      console.log('Detener ejecución del código');
+      axios.post("http://localhost:5430/api/userfolders/stop")
+      .then(response => {
+          this.output = response.data.output;
+        })
+        .catch(error => {
+          console.error('Error al detener el código:', error);
+        });
+      this.output = 'Ejecución detenida';
+    },
+
+   
   },
 };
 
 </script>
 
 <style>
-
-
 .containerPro {
-  
   display: flex;
-  
+}
+
+.editor-output-container {
+  display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 40px 20px 20px;
 }
 
 .editor {
   flex: 1;
-  padding: 50px 5px;
+  padding: 10px 0;
+}
+
+.output {
+  flex: 1;
+  padding: 10px 0;
+}
+
+textarea {
+  width: 100%;
+  height: 200px;
+  padding: 10px;
+  border: 2px solid #033156;
+  border-radius: 4px;
+  font-size: 1rem;
+  border-color: #033156;
 }
 
 .buttons {
   display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: flex-start;
-    padding: 100px;
-    width: 100px;
-    justify-content: center;
-    flex-wrap: nowrap;
+    padding: 55px 25px 20px;
+    width: 200px;
 }
 
-h7{
+h5{
   display: flex;
-    flex-direction: row;
-    align-items: flex-start;
- 
-    justify-content: center;
-    
-   
+            justify-content: center;
+            align-items: center;
 }
-.boton{
-    font-size: 0.9rem;
-    margin: 4px 310px;
-    letter-spacing: 0.05rem;
-    padding: 10px 50px;
-    background-color: #4a4a4a;
-    border-radius: 30px;
+
+.boton {
+  font-size: 0.9rem;
+  margin: 10px 0;
+  letter-spacing: 0.05rem;
+  padding: 10px 20px;
+  background-color: #4a4a4a;
+  border-radius: 30px;
+  color: #FFF;
+  width: 100%; /* Establece el mismo ancho para todos los botones */
+  box-sizing: border-box;
+}
+
+.botonPlay {
+  font-size: 0.9rem;
+  margin: 10px 0;
+  letter-spacing: 0.05rem;
+  padding: 10px 20px;
+  background-color: #098103;
+  border-radius: 30px;
+  color: #FFF;
+  width: 100%; /* Establece el mismo ancho para todos los botones */
+  box-sizing: border-box;
+}
+
+.botonStop {
+  font-size: 0.9rem;
+  margin: 10px 0;
+  letter-spacing: 0.05rem;
+  padding: 10px 20px;
+  background-color: #ba1702;
+  border-radius: 30px;
+  color: #FFF;
+  width: 100%; /* Establece el mismo ancho para todos los botones */
+  box-sizing: border-box;
 }
 </style>

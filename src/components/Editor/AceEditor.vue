@@ -73,7 +73,7 @@ export default {
 .editor-container {
   display: flex;
   flex-direction: column;
-  height: 800px; /* Ocupa toda la altura de la ventana */
+  height: 650px; /* Ocupa toda la altura de la ventana */
   width: 100%;   /* Ocupa todo el ancho disponible */
 }
 .editor {

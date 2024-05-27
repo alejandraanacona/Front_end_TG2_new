@@ -28,15 +28,13 @@
         <SidebarLink  to ="/teleoperado"> <v-icon color="white">mdi-laptop</v-icon><span v-if ="collapsed"> </span>
             <span v-else> &nbsp;&nbsp;Modo Teleoperado </span>  </SidebarLink>
         <br>
-        <SidebarLink to ="/autonomo" > <v-icon color="white">mdi-road</v-icon><span v-if ="collapsed"> </span>
+        <SidebarLink to ="/autonomo" class="link" :class="{ active: isActive }"> <v-icon color="white">mdi-road</v-icon><span v-if ="collapsed"> </span>
             <span v-else>&nbsp;&nbsp;Modo Autónomo </span> </SidebarLink>
         <br>
             <ul class="sub-menu">    
-                <SidebarLink  to ="/programado" > <v-icon>mdi-file-code</v-icon><span v-if ="collapsed"> </span>
+                <SidebarLink  to ="/programado" class="link" :class="{ active: isActive }"> <v-icon>mdi-file-code</v-icon><span v-if ="collapsed"> </span>
             <span v-else>&nbsp;&nbsp; Modo programado </span></SidebarLink>
                 <br>
-                <SidebarLink v-if="isHorarioActivo()" to ="/ejecucion" > <v-icon>mdi-play</v-icon><span v-if ="collapsed"> </span>
-            <span v-else> &nbsp;&nbsp; Modo ejecución </span> </SidebarLink>
             </ul>
         <br>
         <SidebarLink to ="/" > <v-icon>mdi-logout</v-icon><span v-if ="collapsed"> </span>
@@ -115,8 +113,8 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap');
 :root {
     --sidebar-bg-color: #167ed8;
-    --sidebar-item-hover: #a39e00;
-    --sidebar-item-active:rgb(253, 250, 250);
+    --sidebar-item-hover: #030303;
+    --sidebar-item-active:rgb(34, 28, 28);
 }
 </style>
 
@@ -160,7 +158,7 @@ header {
     bottom: 0;
     padding: 0.75em;
 
-    color: rgba(255,255,255,0.7);
+    color: rgba(255, 255, 255, 0.7);
 
     transition: 0.2s linear;
 }

@@ -1,6 +1,6 @@
 <template>
     
-    <router-link :to="to" class="link" :class="{ active: isActive }" @click="isActive">
+    <router-link :to="to" class="link" :class="{ active: isActive }" @click="setActive">
         <i class="icon" :class="icon"/>
         <transition name="fade">
             <span v-if="!collapsed">
@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import { computed,ref } from 'vue'
 //import { useRoute } from 'vue-router';
 import { collapsed } from './state';
 
@@ -23,7 +23,14 @@ export default {
     setup(props) {
         const route = getRoute()
         const isActive = computed(() => route.path === props.to)
-        return { isActive, collapsed }
+        const collapsed = ref(false);
+
+        const setActive = () => {
+            collapsed.value = !collapsed.value;
+            linkColor.value = isActive.value ? 'white' : 'rgba(255, 252, 252, 0.696)'; 
+        };
+
+        return { isActive, collapsed, setActive,linkColor  };
     }
 }
 </script>
@@ -32,7 +39,7 @@ export default {
 .fade-enter-active,
 
 .fade-leave-active{
-    transition: opacity 0.5s;
+    transition: opacity 0.1s;
 }
 .fade-enter,
 .fade-leave-to{
@@ -56,18 +63,18 @@ export default {
     border-radius: 2.5em;
     height: 1.5em;
 
-    color: rgba(255, 252, 252, 0.696);
+    color: rgba(240, 232, 232, 0.696);
     text-decoration: none;
 
 }
 
 .link:hover {
-    color:rgb(253, 250, 250);
+    color:rgb(4, 11, 51);
 }
 
 .link:active {
-  background-color: rgb(199, 218, 24); /* Color de fondo cuando el enlace está activo */
-  color:rgb(253, 250, 250); /* Color de texto cuando el enlace está activo */
+  background-color: rgb(2, 56, 93); /* Color de fondo cuando el enlace está activo */
+  color:rgb(34, 83, 114); /* Color de texto cuando el enlace está activo */
   font-weight: bold; /* Fuente en negrita cuando el enlace está activo */
 }
 
@@ -81,7 +88,16 @@ export default {
     content: '';
     width: 4px;
     height: 100%;
-    background-color:rgb(253, 250, 250);
+    background-color:rgb(255, 255, 255);
+    position: absolute;
+    top: 5%;
+    left:-1px;
+}
+.link.active:after{
+    content: '';
+    width: 4px;
+    height: 100%;
+    background-color:rgb(0, 0, 0);
     position: absolute;
     top: 5%;
     left:-1px;

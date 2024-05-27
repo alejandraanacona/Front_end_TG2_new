@@ -1,0 +1,322 @@
+<template>
+    <div class="Auto">
+      <h2>Autónomo</h2>
+      <div class="row2Auto">
+        <div class="column2Auto">
+  
+          <h6>Videocámara izquierda AWS Deepracer</h6>
+          <div class="boxAuto camaraizqAuto">
+            <img src="http://localhost:8080/stream?topic=/camera_pkg/display_mjpeg&width=640&height=400">
+          </div>
+          <h4>Control teleoperación</h4>
+          <div class="boxAuto joyAuto">
+            
+            <div class= "joystickContainerAuto" ref="joystickContainerAuto"></div>
+  
+          </div>
+          <!--<button type="submit" value="Guardar" class="boton" style="color:#FFFF" > Aplicar </button>-->
+          <v-btn class="botonIniAuto" color="#167ed8" style="color:#FFFF" @click="Iniciar">Iniciar</v-btn>
+        </div>
+        <div class="column2Auto">
+          <h6>Videocámara derecha AWS Deepracer</h6>
+  
+          <div class="boxAuto camaraderAuto">
+            <img src="http://localhost:8080/stream?topic=/camera_pkg/display_mjpeg&width=640&height=400">
+          </div>
+  
+  
+          <h6>Datos sensor LÌDAR</h6>
+  
+          <div class="boxAuto datoslidarAuto">
+            <Scatter ref="scatterChart" :data="chartData" :options="chartOptions"></Scatter>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+      
+  <script>
+  /* eslint-disable */
+  import SockJS from 'sockjs-client';
+  import Stomp from 'stompjs';
+  //import { Chart } from 'chart.js';
+  import { Scatter } from 'vue-chartjs';
+  import Chart from 'chart.js/auto';
+  //import axios from 'axios';
+  import nipplejs from 'nipplejs';
+  
+  
+  
+  //axios
+  export default {
+  
+    components: {
+      Scatter
+      
+    },
+  
+  
+    data() {
+      const resBackLidar = { rangeX: [1, 2, 3, 4], rangeY: [2, 3, 4, 6], intensities: [0, 0, 0, 0] }
+      //console.log("DATOSSSSSSSSS", resBackLidar.rangeY);
+  
+  
+  
+      return {
+  
+        //resBackCamera: "hola", //variable para la camara
+        resBackLidar: { rangeX: [0.64, 0.88, 0.033, 4], rangeY: [0.02, 0.01, 0.014, 0.025], intensities: [0, 0, 0, 0] },
+        stompClient: null,
+        chartData: {
+          datasets: [
+  
+            {
+              label: 'Datos del Sensor Lidar',
+              data: [],
+              backgroundColor: [0.2, 0.4, 0.6, 0.8, 1].map(intensity => `rgba(0, 0, 0, ${intensity})`),
+              pointRadius: 0.1 // Tamaño reducido de los puntos
+            }
+          ]
+        },
+  
+        chartOptions: {
+          scales: {
+            x: {
+              type: 'linear',
+              position: 'bottom',
+              min: -1, // Establece el valor mínimo del eje X
+              max: 1// Establece el valor máximo del eje X
+            },
+            y: {
+              type: 'linear',
+              position: 'left',
+              min: -5, // Establece el valor mínimo del eje Y
+              max: 5 // Establece el valor máximo del eje Y
+            }
+          },
+          animation: false, // Desactiva las animaciones para evitar el movimiento de los puntos
+          elements: {
+            point: {
+              radius: 1 // Tamaño global de los puntos
+            }
+          }
+        }
+      };
+    },
+  
+  
+    mounted() {
+      console.log('Componente montado');
+      this.$nextTick(() => {
+        this.updateChartData();
+      });
+  
+      this.controlCar()
+      
+    },
+  
+  
+    methods: {
+  
+      sendMessage(data) {
+        this.stompClient.send("/app/receive", {}, data);
+        //console.log(data)
+      },
+  
+      controlCar(){
+      var options = {
+      zone: this.$refs.joystickContainerAuto,
+      color: '#167ed8',
+      mode: 'static',
+      size: 200,
+      dynamicPage: true,
+      threshold: 1.0,               // before triggering a directional event
+      //fadeTime: Integer,  
+      };
+  
+      const joystick = nipplejs.create(options);
+      console.log(joystick)
+  
+      
+  
+      
+      joystick.on('move', (evt, data) => {
+        // Handle joystick movement
+        var jsonMessage = JSON.stringify(data);
+        this.sendMessage(jsonMessage)
+    
+      });
+  
+      joystick.on('end', (evt, data) => {
+      
+        data.vector = {'x':0.0,'y':0.0};
+        data.angle = {'radian':0.0, 'degree':270};
+        var jsonMessage = JSON.stringify(data); 
+        this.sendMessage(jsonMessage)
+        console.log(data);
+      });
+  
+  
+    },
+  
+      transformData(xData, yData) {
+        console.log("HOLA", xData.map((x, index) => ({
+          x: x,
+          y: yData[index]
+        })));
+  
+        return xData.map((x, index) => ({
+          x: x,
+          y: yData[index]
+        }));
+      },
+  
+      updateChartImageData(){
+        console.log("Entra a la funcion de actualizacion de datos de la camara")
+        
+      },
+  
+      updateChartData() {
+  
+        console.log("Entra a la funcion de actualizacion de datos de lidar")
+  
+        this.chartData = {
+          datasets: [{
+            label: 'Datos del sensor Lidar',
+            data: this.transformData(this.resBackLidar.rangeX, this.resBackLidar.rangeY)
+          }]
+        };
+        //console.info(this.chartData)
+        return (this.chartData)
+      },
+  
+  
+    connectToSocket() {
+      let socket = new SockJS('http://localhost:5430/ws');
+      this.stompClient = Stomp.over(socket);
+      this.stompClient.connect({}, frame => {
+        console.log('Conectado: ' + frame);
+        this.subscribeToMessages();
+        this.subscribeToCamera();
+        this.subscribeToLidarMessages();
+      });
+    },
+  
+
+  
+    subscribeToMessages() {
+      this.stompClient.subscribe('/topic/messages', mensaje => {
+        this.resBackCamera = mensaje.body;
+      });
+    },
+  
+    subscribeToCamera() {
+      this.stompClient.subscribe('/topic/messages2', jsonCamera => {
+        this.resBackCamera = JSON.parse(jsonCamera.body);
+        //this.updateChartData();
+      });
+    },
+  
+    subscribeToLidarMessages() {
+      this.stompClient.subscribe('/topic/messages3', jsonLidar => {
+        this.resBackLidar = JSON.parse(jsonLidar.body);
+        this.updateChartData();
+      });
+    },
+  
+  
+      Iniciar() {
+        // Coloca aquí el código que se ejecutará cuando se haga clic en el botón
+        console.log('Entro en el método iniciar');
+        this.connectToSocket();
+  
+      }
+  
+      
+  
+    }
+  }
+  
+  
+  
+  
+  </script>
+      
+  
+  <style >
+  .joystickContainerAuto{
+    margin: 20px 70px;
+    padding: 50px 100px 100px 10px;
+  }
+  
+  .Auto {
+    margin-top: 3%;
+  }
+  
+  .row2Auto {
+    display: flex;
+  
+  }
+  
+  /* Create two equal columns that sits next to each other */
+  .column2Auto {
+    flex: 50%;
+  
+  }
+  
+  h6 {
+    margin-left: 80px;
+    margin-bottom: 0%
+  }
+  
+  h4 {
+    margin: 20px 230px 20px 230px;
+  }
+  
+  h2 {
+    margin-left: 30px;
+    padding: 5px;
+  }
+  
+  .boxAuto {
+  
+    background: #ffffff;
+    box-shadow: 0px 14px 80px rgba(53, 54, 80, 0.2);
+    border-radius: 30px;
+    transition: all .3s;
+  }
+  
+  .camaraizqAuto {
+    width: 700px;
+    margin: 40px 130px;
+    padding: 50px 19px 50px 19px;
+  }
+  
+  .camaraderAuto {
+    width: 700px;
+    margin: 40px 45px;
+    padding: 50px 19px 50px 19px;
+  }
+  
+  .joyAuto {
+    width: 400px;
+    margin: 40px 210px;
+    padding: 80px 120px 60px 120px;
+  }
+  
+  .datoslidarAuto {
+    width: 580px;
+    height: 350px;
+    margin: 40px 45px;
+    padding: 20px 20px 20px 20px;
+  }
+  
+  .botonIniAuto {
+    font-size: 1rem;
+    margin: 10px 360px;
+    letter-spacing: 0.05rem;
+    padding: 30px 100px;
+    border-radius: 50px;
+  }
+  </style>

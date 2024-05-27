@@ -73,11 +73,6 @@ const router = new VueRouter({
         component: ModoProgramado
         },
 
-        {
-        path: '/ejecucion',
-        name: 'ModoEjecucion',
-        component: ModoEjecucion
-        },
        
       ],
   },

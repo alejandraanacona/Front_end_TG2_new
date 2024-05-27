@@ -1,31 +1,22 @@
 <template>
+ 
+    <img src="/home/servidor/Documentos/ProyectoDeepLabUv/Front_end_TG2_new/Front-end_TG2-compu-servi/src/assets/info.png" >
+    <!-- Tu contenido adicional puede ir aquí, si es necesario -->
 
-<div class="row1
-">
-  <div class="column1" >
-    <h2>Column 1</h2>
-    <p>Some text..</p>
-  </div>
-  <div class="column1" >
-    <h2>Column 2</h2>
-    <p>Some text..</p>
-  </div>
-</div>
 </template>
-  
+
 <script>
-
 </script>
-  
-  <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style >
 
-.row1 {
+<style scoped>
+.full-screen-container {
+  position: relative;
+  height: 100vh; /* Asegura que el contenedor ocupe toda la altura de la pantalla */
+  width: 100%; /* Asegura que el contenedor ocupe toda la anchura de la pantalla */
   display: flex;
+  justify-content: center; /* Centra el contenido horizontalmente */
+  align-items: center; /* Centra el contenido verticalmente */
 }
 
-/* Create two equal columns that sits next to each other */
-.column1 {
-  flex: 50%;
-}
+
 </style>

@@ -16,10 +16,7 @@
           <div class="modo1">
             <label for="nombrepkg"> &nbsp &nbsp &nbsp   Nombre del paquete </label>
             <br>
-            
             <v-text-field  v-model="nombre" type= "input" outlined=true :disabled="!nombrepkgEnabled" style="width: 200px; height: 50px;"></v-text-field>
-           
-
             <!--<input type="text" id="nombrepkg" name="nombrepkg" :disabled="!nombrepkgEnabled">-->
           </div>
           
@@ -37,20 +34,16 @@
         <br>
         <h3>Eleccion de Cámaras</h3>
         <div class="box cameras">
-          <label class="cyberpunk-checkbox-label">
-            <input class="cyberpunk-checkbox" type="checkbox" name="camara" id="camaraIzq">
-            Usar cámara izquierda</label>
-
-          <label class="cyberpunk-checkbox-label">
-            <input class="cyberpunk-checkbox" type="checkbox" name="camara" id ="camaraDer">
-            Usar cámara derecha</label>
-
-          <label class="cyberpunk-checkbox-label">
-            <input class="cyberpunk-checkbox" type="checkbox" name="camara" id="camaraEstereo">
-            Usar cámara estéreo (dos) </label>
-        </div>
-
-
+            <label class="cyberpunk-checkbox-label">
+              <input class="cyberpunk-checkbox" type="radio" name="camara" v-model="selectedCamera" value="camaraIzq">
+              Usar cámara izquierda</label>
+            <label class="cyberpunk-checkbox-label">
+              <input class="cyberpunk-checkbox" type="radio" name="camara" v-model="selectedCamera" value="camaraDer">
+              Usar cámara derecha</label>
+            <label class="cyberpunk-checkbox-label">
+              <input class="cyberpunk-checkbox" type="radio" name="camara" v-model="selectedCamera" value="camaraEstereo">
+              Usar cámara estéreo (dos)</label>
+          </div>
       </div>
       <div class="column">
         <br><br><br><br>
@@ -69,7 +62,7 @@
           </div>
 
           <h5>Rango Máximo</h5>
-          <v-slider v-model="sliderValue" :min="2" :max="10" step="0.5"></v-slider>
+          <v-slider v-model="sliderValue" :min="2" :max="8" step="0.5"></v-slider>
           <p>Valor del slider en m: {{ sliderValue }}</p>
           
          
@@ -87,7 +80,7 @@
           
 
         </div>
-          <button @click="guardarConfiguracion" type="submit" value="Guardar" class="boton" style="color:#FFFF" > Aplicar </button>
+          <button @click="guardarConfiguracion" type="submit" value="Guardar" class="botonConfig" style="color:#FFFF" > Aplicar </button>
           
         </div>
     </div>
@@ -110,6 +103,9 @@ export default {
   name: 'ConfParameters',
   data() {
     return {
+      nombre:'',
+      velmaxlineal:'',
+      velmaxangular: '',
       nombrepkgEnabled: false, // Inicialmente habilitado
       selectedItem: null, // Aquí se almacenará el elemento seleccionado
       items: [
@@ -118,25 +114,38 @@ export default {
         'Teleoperado + Cámaras + Láser',
         // Agrega las opciones que desees
       ],
-      sliderValue: 11,
+      sliderValue: 8,
+      selectedCamera: null, // Nuevo campo para la cámara seleccionada
+
+      usuarios: JSON.parse(localStorage.getItem('usuarios')),
+      /*parametros:{
+        userId:this.usuarios.userId,
+        nombrePkg: this.nombre,
+        paramLaser: this.sliderValue,
+        paramVelMax: this.velmaxlineal,
+        paramVelAngMax: this.velmaxangular,
+        paramMode:this.nombrepkgEnabled
+      }*/
     };
   },
 
   methods :{
     guardarConfiguracion() {
+     const parametros={
+        userId:this.usuarios.userId,
+        nombrePkg: this.nombre,
+        paramLaser: this.sliderValue,
+        paramVelMax: this.velmaxlineal,
+        paramVelAngMax: this.velmaxangular,
+        paramMode:this.nombrepkgEnabled,
+        paramCamara:this.selectedCamera
+      }
+
+
+      axios.post("http://localhost:5430/parametros/save/", parametros)
       // Obtener los datos necesarios del componente
-      const data = {
-        nombrepkgEnabled: this.nombrepkgEnabled,
-        selectedItem: this.selectedItem,
-        // Agrega más datos según sea necesario
-        rangomin: this.rangomin,
-        rangomax: this.rangomax,
-        sliderValue: this.sliderValue,
-        velmaxlineal: this.velmaxlineal,
-        velmaxangular: this.velmaxangular,
-        // Agrega más datos según sea necesario
-      };
-      console.log("la data a guardar: " , data);
+      
+      console.log("la data a guardar: " , parametros);
       // Realizar una solicitud POST al backend
       /*axios.post('URL_DEL_BACKEND', data)
         .then(response => {
@@ -232,7 +241,7 @@ h3 {
   padding: 48px 70px 43px 144px;
 }
 
-.boton{
+.botonConfig{
     font-size: 0.9rem;
     margin: 4px 310px;
     letter-spacing: 0.05rem;
