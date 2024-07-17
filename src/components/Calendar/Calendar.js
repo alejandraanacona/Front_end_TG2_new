@@ -1,6 +1,7 @@
 import { db } from '../../main'
 import axios from 'axios'
-import { getDocs, collection, query, addDoc, onSnapshot } from 'firebase/firestore'
+import toastr from 'toastr';
+
 
 export default {
     data: () => ({
@@ -19,6 +20,7 @@ export default {
       // timeStartRules: [
       //   v => !!v || 'Hora Inicio Obligatoria',
       // ],
+      usuarios: JSON.parse(localStorage.getItem('usuarios')),
     }),
 
     computed: {
@@ -193,7 +195,7 @@ export default {
           //console.log("la fecha de inicio: " + hourEnd);
 
           this.createEvent = {
-            userId: 1,
+            userId: this.usuarios.userId,
             fecha:this.date,
             horaInicio: hourStart,
             horaFin: hourEnd,
@@ -206,10 +208,12 @@ export default {
           const response = await axios.post('http://localhost:5430/horario/reservar', this.createEvent);
           console.log(this.createEvent);
           console.log(response.data);
+          toastr.success('Horario reservado con éxito','Éxito')
           // Actualizar la lista de eventos después de crear uno nuevo
           this.fetchEvents();
         } catch (error) {
           console.error('Error reservando el horario:', error.response.data);
+          toastr.error('Error al reservar horario, intente nuevemente','Error')
           }
         }
       },

@@ -92,6 +92,7 @@
 
 import Vue from 'vue';
 import axios from 'axios'
+import toastr from 'toastr';
 
 //campoInput.disable = false;
 
@@ -146,6 +147,9 @@ export default {
       // Obtener los datos necesarios del componente
       
       console.log("la data a guardar: " , parametros);
+      toastr.success('Se guardó la configuración', 'Éxito');
+
+
       // Realizar una solicitud POST al backend
       /*axios.post('URL_DEL_BACKEND', data)
         .then(response => {

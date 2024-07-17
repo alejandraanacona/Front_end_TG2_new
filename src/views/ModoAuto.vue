@@ -11,7 +11,12 @@
           <h4>Control teleoperación</h4>
           <div class="boxAuto joyAuto">
             
-            <div class= "joystickContainerAuto" ref="joystickContainerAuto"></div>
+            <div class= "joystickContainerAuto" ref="joystickContainerAuto">
+              <div class="direction-label up">Adelante</div>
+              <div class="direction-label down">Reversa</div>
+              <div class="direction-label left">Izquierda</div>
+              <div class="direction-label right">Derecha</div>
+            </div>
   
           </div>
           <!--<button type="submit" value="Guardar" class="boton" style="color:#FFFF" > Aplicar </button>-->
@@ -85,20 +90,20 @@
             x: {
               type: 'linear',
               position: 'bottom',
-              min: -1, // Establece el valor mínimo del eje X
-              max: 1// Establece el valor máximo del eje X
+              min: -5, // Establece el valor mínimo del eje X
+              max: 5// Establece el valor máximo del eje X
             },
             y: {
               type: 'linear',
               position: 'left',
-              min: -5, // Establece el valor mínimo del eje Y
-              max: 5 // Establece el valor máximo del eje Y
+              min: -8, // Establece el valor mínimo del eje Y
+              max: 8 // Establece el valor máximo del eje Y
             }
           },
           animation: false, // Desactiva las animaciones para evitar el movimiento de los puntos
           elements: {
             point: {
-              radius: 1 // Tamaño global de los puntos
+              radius: 2 // Tamaño global de los puntos
             }
           }
         }
@@ -239,16 +244,56 @@
   }
   
   
-  
+
   
   </script>
       
   
   <style >
   .joystickContainerAuto{
-    margin: 20px 70px;
-    padding: 50px 100px 100px 10px;
+    position: relative;
+  width: 200px; /* Ajusta según el tamaño de tu contenedor */
+  height: 200px; /* Ajusta según el tamaño de tu contenedor */
+  margin: 0 auto; /* Centrar el contenedor */
+  background-color: #f0f0f0; /* Color de fondo para visualización */
+  border-radius: 50%; /* Hacerlo circular, si el joystick es circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   }
+
+  .direction-label {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.direction-label.up {
+  top: -40px;
+  left: 50%;
+}
+
+.direction-label.down {
+  bottom: -40px;
+  left: 50%;
+}
+
+.direction-label.left {
+  left: -90px;
+  top: 50%;
+  transform: translateY(-50%) translateX(0);
+}
+
+.direction-label.right {
+  right: -85px;
+  top: 50%;
+  transform: translateY(-50%) translateX(0);
+}
   
   .Auto {
     margin-top: 3%;

@@ -34,6 +34,7 @@ import AceEditor from '@/components/Editor/AceEditor.vue';
 import axios from 'axios';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
+import toastr from 'toastr';
 
 export default {
   components: {
@@ -57,8 +58,8 @@ export default {
         const response = await axios.get(`http://localhost:5430/api/userfolders/${this.usuarios.userId}/${this.archivoNodo}`)
         this.code = response.data.fileContent;
         this.filePath = response.data.path;
-
         console.log(this.code);
+        toastr.success('Abriendo archivo python','Éxito')
       } catch (error) {
         console.error('Error al leer el archivo frontend:', error);
       }
@@ -70,10 +71,13 @@ export default {
         const response = await axios.get(`http://localhost:5430/api/userfolders/${this.usuarios.userId}/${this.archivoSetup}`)
         this.code = response.data.fileContent;
         this.filePath = response.data.path;
+        toastr.success('Abriendo archivo Setup','Éxito')
 
         console.log(this.code);
       } catch (error) {
         console.error('Error al leer el archivo frontend:', error);
+        toastr.error('Error abriendo archivo, intente nuevamente','Error')
+
       }
     },
 
@@ -84,8 +88,12 @@ export default {
     guardarArchivo() {
       try{
       axios.post("http://localhost:5430/api/userfolders/save", {fileContent:this.code, path:this.filePath})
+      toastr.success('Guardando archivo','Éxito')
+
       }catch(error){
       console.log('Error al guardar archivo:', error);
+      toastr.error('Error guardando archivo, intente nuevamente','Error')
+
       }
     },
     crearNodo() {
@@ -102,8 +110,8 @@ export default {
     },
 
     subscribeToMessagesConsole() {
-    this.stompClient.subscribe('/topic/output', mensaje => {
-      this.registros = mensaje.body;
+      this.stompClient.subscribe('/topic/output', mensaje => {
+        this.registros += mensaje.body + '\n'; // Concatenar cada nuevo mensaje con una nueva línea
       });
     },
 
@@ -116,9 +124,13 @@ export default {
       axios.post("http://localhost:5430/api/userfolders/buildAndRun", this.usuarios)
         .then(response => {
           this.output = response.data.output;
+          toastr.success('Ejecutando el proyecto','Éxito')
+
         })
         .catch(error => {
           console.error('Error al ejecutar el código:', error);
+          toastr.error('Error ejecutando el proyecto, intente nuevamente','Error')
+
         });
 
       this.connectToSocketProgram();
@@ -128,7 +140,7 @@ export default {
     detenerCodigo() {
       // Lógica para detener el código
       console.log('Detener ejecución del código');
-      axios.post("http://localhost:5430/api/userfolders/stop")
+      axios.post("http://localhost:5430/api/userfolders/stop",this.usuarios)
       .then(response => {
           this.output = response.data.output;
         })

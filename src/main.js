@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import '@/assets/css/main.css'
 import '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-free'
-
+import 'toastr/build/toastr.min.css';
 import { initializeApp } from "firebase/app";
 
 import { getFirestore } from 'firebase/firestore';

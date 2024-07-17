@@ -77,6 +77,7 @@
   
   <script>
   import axios from 'axios';
+  import toastr from 'toastr';
   
   export default {
     name: 'SignupForm',
@@ -109,6 +110,7 @@
 
       saveUsers(){
         console.log('Usuarios a guardar', this.user)
+        toastr.success('Usuario guardado','Éxito');
         axios.post("http://localhost:5430/user/save/", {
             nombre: this.user.nombre,
             apellido: this.user.apellido,
@@ -120,13 +122,15 @@
         .then(response => {
             // Manejar la respuesta del servidor
             console.log(response.data);
+            
+
             // Por ejemplo, redirigir a otra página después de guardar los datos
             //this.$router.push({ name: 'OtraPagina' });
         })
         .catch(error => {
             // Manejar cualquier error que ocurra durante la solicitud
             console.error('Error al guardar los usuarios:', error);
-            alert('Error al guardar los usuarios. Por favor, inténtelo de nuevo.');
+            toastr.error('Error al guardar los usuarios. Por favor, inténtelo de nuevo.','Error');
         });
     },
 

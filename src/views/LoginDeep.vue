@@ -61,6 +61,26 @@
 import Vue from 'vue';
 import axios from 'axios';
 import { EventBus } from './eventBus';
+import toastr from 'toastr';
+import 'toastr/build/toastr.min.css';
+
+toastr.options = {
+  closeButton: true,
+  debug: false,
+  newestOnTop: false,
+  progressBar: false,
+  positionClass: "toast-top-right",
+  preventDuplicates: false,
+  onclick: null,
+  showDuration: "100",
+  hideDuration: "1000",
+  timeOut: "3000",
+  extendedTimeOut: "100",
+  showEasing: "swing",
+  hideEasing: "linear",
+  showMethod: "fadeIn",
+  hideMethod: "fadeOut"
+};
 
 axios
 export default {
@@ -90,26 +110,28 @@ export default {
                     ({ data }) => {
                         console.log(data);
                         try {
-                            if (data.message == "Usuario not exits") {
+                            if (data.message == "Usuario no existe") {
                                 this.mensaje=data.message;
-
+                                toastr.warning('Usuario no existe', 'Advertencia');
                             }
-                            else if (data.message == "Login Success") {
+                            else if (data.message == "Acesso Exitoso Estudiante") {
                                 console.log("usuarios enviados:" +JSON.stringify(data.usuarios));
                                 this.$router.push({ name: 'InstruccionesUso' }),
                                 localStorage.setItem('usuarios', JSON.stringify(data.usuarios));
-
+                                toastr.success('Acceso exitoso como Estudiante', 'Éxito');
                             }
-                            else if (data.message == "Login Success Admin") {
+                            else if (data.message == "Acceso Exitoso Administrador") {
 
                                 this.$router.push({ name: 'ModoAdministrador' })
+                                toastr.success('Acceso exitoso como Administrador', 'Éxito');
+
                             }
                             else {
-                                alert("Incorrect Code and Password not match");
+                                toastr.error('Código incorrecto o la contraseña no coinciden', 'Error');
                             }
 
                         } catch (err) {
-                            alert("Error, please try again");
+                            toastr.error('Error, por favor intente nuevamente', 'Error');
                         }
                     }
                 )
